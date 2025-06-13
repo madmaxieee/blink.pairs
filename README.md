@@ -33,7 +33,7 @@ The behavior was inspired by [lexima.vim](https://github.com/cohama/lexima.vim) 
 
   -- download prebuilt binaries from github releases
   dependencies = 'saghen/blink.download',
-  -- AND/OR build from source, requires nightly: https://rust-lang.github.io/rustup/concepts/channels.html#working-with-nightly-rust
+  -- OR build from source, requires nightly: https://rust-lang.github.io/rustup/concepts/channels.html#working-with-nightly-rust
   -- build = 'cargo build --release',
   -- If you use nix, you can build from source using latest nightly rust with:
   -- build = 'nix run .#build-plugin',
