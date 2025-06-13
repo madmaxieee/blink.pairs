@@ -32,6 +32,10 @@ local mappings = {
             local cursor = vim.api.nvim_win_get_cursor(0)
             local char = vim.api.nvim_get_current_line():sub(cursor[2], cursor[2])
             return not char:match('%w')
+              -- rust lifetimes
+              -- todo: replace with spans or treesitter
+              -- todo: doesn't work for quote at cursor here <'a, |b>
+              and (vim.bo.filetype ~= 'rust' or (char ~= '&' and char ~= '<'))
           end,
         },
       },
