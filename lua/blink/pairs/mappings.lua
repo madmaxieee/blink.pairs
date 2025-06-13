@@ -44,9 +44,16 @@ function mappings.disable()
   mappings.unregister(config.mappings.pairs)
 end
 
+function mappings.is_enabled()
+  return vim.g.pairs ~= false
+    and vim.b.pairs ~= false
+    and vim.api.nvim_get_mode().mode:find('R') == nil
+    and not vim.tbl_contains(require('blink.pairs.config').mappings.disabled_filetypes, vim.bo.filetype)
+end
+
 function mappings.on_key(key, rules)
   return function()
-    if vim.api.nvim_get_mode().mode:find('R') ~= nil then return key end
+    if not mappings.is_enabled() then return key end
 
     local active_rules = rule_lib.get_all_active(rules)
 
@@ -148,6 +155,8 @@ end
 --- @param rules blink.pairs.Rule[]
 function mappings.backspace(rules)
   return function()
+    if not mappings.is_enabled() then return '<BS>' end
+
     local rule, surrounding_space = rule_lib.get_surrounding(rules, 'backspace')
     if rule == nil then return '<BS>' end
 
@@ -163,6 +172,8 @@ end
 --- @param rules blink.pairs.Rule[]
 function mappings.enter(rules)
   return function()
+    if not mappings.is_enabled() then return '<CR>' end
+
     local rule, surrounding_space = rule_lib.get_surrounding(rules, 'enter')
     if rule == nil then return '<CR>' end
 
@@ -179,6 +190,8 @@ end
 --- @param rules blink.pairs.Rule[]
 function mappings.space(rules)
   return function()
+    if not mappings.is_enabled() then return '<Space>' end
+
     local rule = rule_lib.get_surrounding(rules, 'space')
     if rule == nil then return '<Space>' end
 

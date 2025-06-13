@@ -1,5 +1,6 @@
 --- @class (exact) blink.pairs.MappingsConfig
 --- @field enabled boolean
+--- @field disabled_filetypes string[]
 --- @field pairs blink.pairs.RuleDefinitions
 
 local validate = require('blink.pairs.config.utils').validate
@@ -7,6 +8,7 @@ local mappings = {
   --- @type blink.pairs.MappingsConfig
   default = {
     enabled = true,
+    disabled_filetypes = {},
     pairs = {
       -- TODO: the `when` clauses should receive a stdlib
       ['!'] = { { '<!--', '-->', filetypes = { 'html', 'markdown' } } },
@@ -91,6 +93,7 @@ local mappings = {
 function mappings.validate(config)
   validate('mappings', {
     enabled = { config.enabled, 'boolean' },
+    disabled_filetypes = { config.disabled_filetypes, 'table' },
     pairs = { config.pairs, 'table' },
   }, config)
 
