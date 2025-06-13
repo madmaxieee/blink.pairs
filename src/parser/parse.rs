@@ -22,10 +22,7 @@ pub fn parse<M: Matcher>(
     lines: &[&str],
     initial_state: State,
     mut matcher: M,
-) -> (Vec<Vec<Match>>, Vec<State>)
-where
-    M: Matcher,
-{
+) -> (Vec<Vec<Match>>, Vec<State>) {
     // State
     let mut matches_by_line = Vec::with_capacity(lines.len());
     let mut line_matches = vec![];
@@ -95,16 +92,20 @@ where
 mod tests {
     use crate::parser::{parse_filetype, Match, State};
 
-    fn parse_c(lines: &str) -> Vec<Vec<Match>> {
-        parse_filetype("c", &lines.split('\n').collect::<Vec<_>>(), State::Normal)
-            .unwrap()
-            .0
+    fn parse(filetype: &str, lines: &str) -> Vec<Vec<Match>> {
+        parse_filetype(
+            filetype,
+            &lines.split('\n').collect::<Vec<_>>(),
+            State::Normal,
+        )
+        .unwrap()
+        .0
     }
 
     #[test]
     fn test_parse() {
         assert_eq!(
-            parse_c("{\n}"),
+            parse("c", "{\n}"),
             vec![
                 vec![Match::delimiter('{', 0, Some(0))],
                 vec![Match::delimiter('}', 0, Some(0))]
@@ -112,7 +113,7 @@ mod tests {
         );
 
         assert_eq!(
-            parse_c("// comment {}\n}"),
+            parse("c", "// comment {}\n}"),
             vec![
                 vec![Match::line_comment("//", 0)],
                 vec![Match::delimiter('}', 0, Some(0))],
@@ -120,13 +121,27 @@ mod tests {
         );
 
         assert_eq!(
-            parse_c("/* comment {} */\n}"),
+            parse("c", "/* comment {} */\n}"),
             vec![
                 vec![
                     Match::block_comment("/*", 0),
                     Match::block_comment("*/", 14)
                 ],
                 vec![Match::delimiter('}', 0, Some(0))]
+            ]
+        );
+    }
+
+    #[test]
+    fn test_tex() {
+        assert_eq!(
+            parse("tex", "test 90\\% ( and b )\n%abc"),
+            vec![
+                vec![
+                    Match::delimiter('(', 10, Some(0)),
+                    Match::delimiter(')', 18, Some(0))
+                ],
+                vec![Match::line_comment("%", 0)]
             ]
         );
     }
