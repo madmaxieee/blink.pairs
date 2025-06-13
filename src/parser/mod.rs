@@ -28,7 +28,9 @@ pub fn parse_filetype(
         "haskell" => Some(parse(lines, initial_state, languages::Haskell {})),
         "haxe" => Some(parse(lines, initial_state, languages::Haxe {})),
         "java" => Some(parse(lines, initial_state, languages::Java {})),
-        "javascript" => Some(parse(lines, initial_state, languages::JavaScript {})),
+        "typescript" | "javascript" | "typescriptreact" | "javascriptreact" => {
+            Some(parse(lines, initial_state, languages::JavaScript {}))
+        }
         "json" => Some(parse(lines, initial_state, languages::Json {})),
         "kotlin" => Some(parse(lines, initial_state, languages::Kotlin {})),
         "latex" | "tex" | "bib" => Some(parse(lines, initial_state, languages::Latex {})),
