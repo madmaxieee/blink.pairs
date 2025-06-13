@@ -71,9 +71,13 @@ local mappings = {
           '_',
           when = function()
             local rule = require('blink.pairs.rule')
-            local in_math = rule.is_in_span('math')
 
-            if in_math then return false end
+            if rule.is_in_span('math') then return false end
+            if vim.bo.filetype == 'markdown' then
+              local cursor = vim.api.nvim_win_get_cursor(0)
+              local char = vim.api.nvim_get_current_line():sub(cursor[2], cursor[2])
+              return not char:match('%w')
+            end
 
             return true
           end,
