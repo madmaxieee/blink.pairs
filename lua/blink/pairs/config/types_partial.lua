@@ -5,6 +5,7 @@
 
 --- @class (exact) blink.pairs.MappingsConfigPartial : blink.pairs.MappingsConfig
 --- @field enabled? boolean
+--- @field disabled_filetypes? string[]
 --- @field pairs? blink.pairs.RuleDefinitions
 
 --- @alias blink.pairs.RuleDefinitions table<string, string | blink.pairs.RuleDefinition | blink.pairs.RuleDefinition[]>
