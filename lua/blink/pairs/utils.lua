@@ -113,7 +113,7 @@ function utils.notify(msg, lvl)
     header_hl = 'DiagnosticVirtualTextInfo'
   end
 
-  table.insert(msg, 1, { ' blink.cmp ', header_hl })
+  table.insert(msg, 1, { ' blink.pairs ', header_hl })
   table.insert(msg, 2, { ' ' })
 
   local echo_opts = { verbose = false }
