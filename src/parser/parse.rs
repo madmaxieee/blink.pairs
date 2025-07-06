@@ -73,6 +73,7 @@ pub fn parse<M: Matcher>(
         }
 
         state = matcher.call(
+            &mut matches_by_line,
             &mut line_matches,
             &mut stack,
             &mut tokens,
@@ -83,6 +84,11 @@ pub fn parse<M: Matcher>(
     }
     matches_by_line.push(line_matches);
     state_by_line.push(state);
+
+    // Remaining items in stack must be unmatched
+    for (line_number, match_index, _) in stack.into_iter() {
+        matches_by_line[line_number][match_index].stack_height = None;
+    }
 
     (matches_by_line, state_by_line)
 }

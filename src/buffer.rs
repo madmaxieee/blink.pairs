@@ -120,6 +120,13 @@ impl ParsedBuffer {
     ) -> Option<(MatchWithLine, MatchWithLine)> {
         let match_at_pos = self.match_at(line_number, col)?.with_line(line_number);
 
+        // Ignore unmatched delimiter
+        if matches!(match_at_pos.token, Token::Delimiter(_, _))
+            && match_at_pos.stack_height.is_none()
+        {
+            return None;
+        }
+
         // Opening match
         if match_at_pos.kind == Kind::Opening {
             let closing_match = self.matches_by_line[line_number..]
@@ -167,22 +174,36 @@ impl ParsedBuffer {
         let mut stack = vec![];
 
         for matches in self.matches_by_line.iter_mut() {
-            for match_ in matches {
+            'outer: for match_ in matches.iter_mut() {
                 // Opening delimiter
                 if match_.kind == Kind::Opening {
                     match_.stack_height = Some(stack.len());
-                    stack.push(&match_.token);
+                    stack.push(match_);
                 }
                 // Closing delimiter
                 else {
-                    if let Some(closing) = stack.last() {
-                        if *closing == &match_.token {
+                    for (i, opening) in stack.iter().enumerate().rev() {
+                        if opening.token == match_.token {
+                            // Mark all skipped matches as unmatched
+                            for opening in stack.splice((i + 1).., vec![]) {
+                                opening.stack_height = None;
+                            }
+
                             stack.pop();
+                            match_.stack_height = Some(stack.len());
+                            continue 'outer;
                         }
                     }
-                    match_.stack_height = Some(stack.len());
+
+                    // No match found, mark as unmatched
+                    match_.stack_height = None;
                 }
             }
+        }
+
+        // Remaining items in stack must be unmatched
+        for match_ in stack.iter_mut() {
+            match_.stack_height = None;
         }
     }
 

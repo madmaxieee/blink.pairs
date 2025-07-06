@@ -18,8 +18,9 @@ pub trait Matcher {
 
     fn call<I>(
         &mut self,
+        matches_by_line: &mut Vec<Vec<Match>>,
         matches: &mut Vec<Match>,
-        stack: &mut Vec<u8>,
+        stack: &mut Vec<(usize, usize, u8)>,
         tokens: &mut MultiPeek<I>,
         state: State,
         token: CharPos,

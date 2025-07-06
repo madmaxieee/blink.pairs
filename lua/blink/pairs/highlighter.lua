@@ -9,9 +9,12 @@ function highlighter.register(config)
     end,
     on_line = function(_, _, bufnr, line_number)
       for _, match in ipairs(require('blink.pairs.rust').get_line_matches(bufnr, line_number)) do
+        local hl_group = match.stack_height == nil and config.unmatched_group
+          or config.groups[match.stack_height % #config.groups + 1]
+
         vim.api.nvim_buf_set_extmark(bufnr, config.ns, line_number, match.col, {
           end_col = match.col + match[1]:len(),
-          hl_group = config.groups[match.stack_height % #config.groups + 1],
+          hl_group = hl_group,
           hl_mode = 'combine',
           priority = config.priority,
         })

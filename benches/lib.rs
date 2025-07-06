@@ -10,6 +10,14 @@ fn criterion_benches(c: &mut Criterion) {
     let c_lines = c_text.lines().collect::<Box<[_]>>();
     let rust_lines = rust_text.lines().collect::<Box<[_]>>();
 
+    c.bench_function("parse simd - c", |b| {
+        b.iter(|| parse_filetype("c", black_box(&c_lines), State::Normal))
+    });
+
+    c.bench_function("parse simd - rust", |b| {
+        b.iter(|| parse_filetype("rust", black_box(&rust_lines), State::Normal))
+    });
+
     c.bench_function("tokenize simd - c", |b| {
         b.iter(|| {
             tokenize::<64>(black_box(c_text), black_box(C::TOKENS)).for_each(|c| {
@@ -24,14 +32,6 @@ fn criterion_benches(c: &mut Criterion) {
                 black_box(c);
             })
         })
-    });
-
-    c.bench_function("parse simd - c", |b| {
-        b.iter(|| parse_filetype("c", black_box(&c_lines), State::Normal))
-    });
-
-    c.bench_function("parse simd - rust", |b| {
-        b.iter(|| parse_filetype("rust", black_box(&rust_lines), State::Normal))
     });
 }
 

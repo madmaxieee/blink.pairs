@@ -20,6 +20,7 @@ local highlights = {
       'BlinkPairsPurple',
       'BlinkPairsBlue',
     },
+    unmatched_group = 'BlinkPairsUnmatched',
     priority = 200,
     ns = vim.api.nvim_create_namespace('blink.pairs'),
     matchparen = {
@@ -33,6 +34,7 @@ local highlights = {
 function highlights.validate(config)
   validate('highlights', {
     enabled = { config.enabled, 'boolean' },
+    unmatched_group = { config.unmatched_group, 'string' },
     groups = { config.groups, 'table' },
     priority = { config.priority, 'number' },
     ns = { config.ns, 'number' },
