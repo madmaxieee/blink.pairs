@@ -10,82 +10,89 @@ local mappings = {
     enabled = true,
     disabled_filetypes = {},
     pairs = {
-      -- TODO: the `when` clauses should receive a stdlib
-      ['!'] = { { '<!--', '-->', filetypes = { 'html', 'markdown' } } },
+      ['!'] = { { '<!--', '-->', languages = { 'html', 'markdown', 'markdown_inline' } } },
       ['('] = ')',
       ['['] = ']',
       ['{'] = '}',
       ["'"] = {
         {
           "'''",
-          "'''",
-          when = function()
-            local cursor = vim.api.nvim_win_get_cursor(0)
-            local line = vim.api.nvim_get_current_line()
-            return line:sub(cursor[2] - 1, cursor[2]) == "''"
-          end,
-          filetypes = { 'python' },
+          when = function(ctx) return ctx:text_before_cursor(2) == "''" end,
+          languages = { 'python' },
         },
         {
           "'",
           enter = false,
           space = false,
-          when = function()
-            local cursor = vim.api.nvim_win_get_cursor(0)
-            local char = vim.api.nvim_get_current_line():sub(cursor[2], cursor[2])
-            return not char:match('%w')
-              -- rust lifetimes
-              -- todo: replace with spans or treesitter
-              -- todo: doesn't work for quote at cursor here <'a, |b>
-              and (vim.bo.filetype ~= 'rust' or (char ~= '&' and char ~= '<'))
-              and not vim.list_contains({ 'bib', 'tex', 'plaintex' }, vim.bo.filetype)
+          when = function(ctx)
+            if ctx.ft == 'plaintex' then
+              -- The `plaintex` filetype has no treesitter parser, so we can't disable this pair in math environments. Thus, disable this pair completely.
+              return false
+            end
+
+            if
+              ctx.ts:is_language({ 'bibtex', 'comment', 'luadoc', 'latex', 'markdown', 'markdown_inline', 'typst' })
+              and ctx.char_under_cursor:match('%w')
+            then
+              return false
+            end
+
+            -- TODO: disable inside "" strings?
+            return ctx.ts:blacklist('singlequote').matches
           end,
         },
       },
       ['"'] = {
-        { 'r#"', '"#', filetypes = { 'rust' }, priority = 100 },
+        {
+          'r#"',
+          '"#',
+          languages = { 'rust' },
+          priority = 100,
+        },
         {
           '"""',
-          '"""',
-          when = function()
-            local cursor = vim.api.nvim_win_get_cursor(0)
-            local line = vim.api.nvim_get_current_line()
-            return line:sub(cursor[2] - 1, cursor[2]) == '""'
-          end,
-          filetypes = { 'python', 'elixir', 'julia', 'kotlin', 'scala', 'sbt' },
+          when = function(ctx) return ctx:text_before_cursor(2) == '""' end,
+          languages = { 'python', 'elixir', 'julia', 'kotlin', 'scala' },
         },
         { '"', enter = false, space = false },
       },
       ['`'] = {
         {
           '```',
-          '```',
-          when = function()
-            local cursor = vim.api.nvim_win_get_cursor(0)
-            local line = vim.api.nvim_get_current_line()
-            return line:sub(cursor[2] - 1, cursor[2]) == '``'
-          end,
-          filetypes = { 'markdown', 'vimwiki', 'rmarkdown', 'rmd', 'pandoc', 'quarto', 'typst' },
+          when = function(ctx) return ctx:text_before_cursor(2) == '``' end,
+          languages = { 'markdown', 'markdown_inline', 'typst', 'vimwiki', 'rmarkdown', 'rmd', 'quarto' },
         },
-        { '`', "'", filetypes = { 'bib', 'tex', 'plaintex' } },
+        {
+          '`',
+          "'",
+          languages = { 'bibtex', 'latex', 'plaintex' },
+        },
         { '`', enter = false, space = false },
       },
       ['_'] = {
         {
           '_',
-          when = function()
-            local rule = require('blink.pairs.rule')
-
-            if rule.is_in_span('math') then return false end
-            if vim.bo.filetype == 'markdown' then
-              local cursor = vim.api.nvim_win_get_cursor(0)
-              local char = vim.api.nvim_get_current_line():sub(cursor[2], cursor[2])
-              return not char:match('%w')
-            end
-
-            return true
+          when = function(ctx)
+            if ctx.char_under_cursor:match('%w') then return false end
+            return ctx.ts:blacklist('underscore').matches
           end,
-          filetypes = { 'markdown', 'typst' },
+          languages = { 'typst' },
+        },
+      },
+      ['*'] = {
+        {
+          '*',
+          when = function(ctx) return ctx.ts:blacklist('asterisk').matches end,
+          languages = { 'typst' },
+        },
+      },
+      ['<'] = {
+        { '<', '>', when = function(ctx) return ctx.ts:whitelist('angle').matches end, languages = { 'rust' } },
+      },
+      ['$'] = {
+        {
+          '$',
+          languages = { 'markdown', 'markdown_inline', 'typst', 'latex', 'plaintex' },
         },
       },
     },
@@ -114,7 +121,7 @@ function mappings.validate_rules(key, defs)
       [1] = { def[1], 'string' },
       [2] = { def[2], { 'string', 'nil' } },
       priority = { def.priority, { 'number', 'nil' } },
-      filetypes = { def.filetypes, { 'table', 'nil' } },
+      languages = { def.languages, { 'table', 'nil' } },
       when = { def.when, { 'function', 'nil' } },
       enter = { def.enter, { 'boolean', 'function', 'nil' } },
       backspace = { def.backspace, { 'boolean', 'function', 'nil' } },
