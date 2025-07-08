@@ -47,6 +47,8 @@ end
 function mappings.is_enabled()
   return vim.g.pairs ~= false
     and vim.b.pairs ~= false
+    and vim.g.blink_pairs ~= false
+    and vim.b.blink_pairs ~= false
     and vim.api.nvim_get_mode().mode:find('R') == nil
     and not vim.tbl_contains(require('blink.pairs.config').mappings.disabled_filetypes, vim.bo.filetype)
 end

@@ -46,7 +46,8 @@ The behavior was inspired by [lexima.vim](https://github.com/cohama/lexima.vim) 
     mappings = {
       -- you can call require("blink.pairs.mappings").enable() and require("blink.pairs.mappings").disable() to enable/disable mappings at runtime
       enabled = true,
-      -- you may also disable with `vim.g.pairs = false` (global) or `vim.b.pairs = false` (per-buffer)
+      -- or disable with `vim.g.pairs = false` (global) and `vim.b.pairs = false` (per-buffer)
+      -- and/or with `vim.g.blink_pairs = false` and `vim.b.blink_pairs = false`
       disabled_filetypes = {},
       -- see the defaults: https://github.com/Saghen/blink.pairs/blob/main/lua/blink/pairs/config/mappings.lua#L12
       pairs = {},
