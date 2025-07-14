@@ -1,4 +1,5 @@
 use blink_pairs::parser::{
+    indent::indent_levels,
     languages::{Rust, C},
     parse_filetype, tokenize, Matcher, State,
 };
@@ -10,12 +11,16 @@ fn criterion_benches(c: &mut Criterion) {
     let c_lines = c_text.lines().collect::<Box<[_]>>();
     let rust_lines = rust_text.lines().collect::<Box<[_]>>();
 
-    c.bench_function("parse simd - c", |b| {
-        b.iter(|| parse_filetype("c", black_box(&c_lines), State::Normal))
+    c.bench_function("indent - c", |b| {
+        b.iter(|| {
+            indent_levels(c_text, 4);
+        })
     });
 
-    c.bench_function("parse simd - rust", |b| {
-        b.iter(|| parse_filetype("rust", black_box(&rust_lines), State::Normal))
+    c.bench_function("indent - rust", |b| {
+        b.iter(|| {
+            indent_levels(rust_text, 4);
+        })
     });
 
     c.bench_function("tokenize simd - c", |b| {
@@ -32,6 +37,14 @@ fn criterion_benches(c: &mut Criterion) {
                 black_box(c);
             })
         })
+    });
+
+    c.bench_function("parse simd - c", |b| {
+        b.iter(|| parse_filetype("c", 4, black_box(&c_lines), State::Normal))
+    });
+
+    c.bench_function("parse simd - rust", |b| {
+        b.iter(|| parse_filetype("rust", 4, black_box(&rust_lines), State::Normal))
     });
 }
 

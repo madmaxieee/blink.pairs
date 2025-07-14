@@ -3,21 +3,25 @@ use crate::parser::{parse_filetype, Kind, Match, MatchWithLine, State, Token};
 pub struct ParsedBuffer {
     matches_by_line: Vec<Vec<Match>>,
     state_by_line: Vec<State>,
+    indent_levels: Vec<u8>,
 }
 
 impl ParsedBuffer {
-    pub fn parse(filetype: &str, lines: &[&str]) -> Option<Self> {
-        let (matches_by_line, state_by_line) = parse_filetype(filetype, lines, State::Normal)?;
+    pub fn parse(filetype: &str, tab_width: u8, lines: &[&str]) -> Option<Self> {
+        let (matches_by_line, state_by_line, indent_levels) =
+            parse_filetype(filetype, tab_width, lines, State::Normal)?;
 
         Some(Self {
             matches_by_line,
             state_by_line,
+            indent_levels,
         })
     }
 
     pub fn reparse_range(
         &mut self,
         filetype: &str,
+        tab_width: u8,
         lines: &[&str],
         start_line: Option<usize>,
         old_end_line: Option<usize>,
@@ -36,8 +40,8 @@ impl ParsedBuffer {
             State::Normal
         };
 
-        if let Some((matches_by_line, state_by_line)) =
-            parse_filetype(filetype, lines, initial_state)
+        if let Some((matches_by_line, state_by_line, indent_levels)) =
+            parse_filetype(filetype, tab_width, lines, initial_state)
         {
             let new_end_line = new_end_line.unwrap_or(start_line + matches_by_line.len());
             let length = new_end_line - start_line;
@@ -47,6 +51,11 @@ impl ParsedBuffer {
             );
             self.state_by_line
                 .splice(start_line..old_end_line, state_by_line[0..length].to_vec());
+
+            self.indent_levels.splice(
+                start_line..old_end_line.min(self.indent_levels.len()),
+                indent_levels[0..length].to_vec(),
+            );
 
             self.recalculate_stack_heights();
 
@@ -102,6 +111,17 @@ impl ParsedBuffer {
 
     pub fn line_matches(&self, line_number: usize) -> Option<Vec<Match>> {
         self.matches_by_line.get(line_number).cloned()
+    }
+
+    pub fn get_indent_levels(&self, start_line: usize, end_line: usize) -> Vec<u8> {
+        let start_idx = start_line.min(self.indent_levels.len());
+        let end_idx = end_line.min(self.indent_levels.len());
+
+        if start_idx >= end_idx {
+            return vec![];
+        }
+
+        self.indent_levels[start_idx..end_idx].to_vec()
     }
 
     pub fn iter_from(
@@ -383,16 +403,20 @@ mod tests {
     use super::*;
     use pretty_assertions::assert_eq;
 
+    fn parse(filetype: &str, lines: &[&str]) -> ParsedBuffer {
+        ParsedBuffer::parse(filetype, 4, lines).unwrap()
+    }
+
     #[test]
     fn test_unmatched_opening_before() {
-        let mut buffer = ParsedBuffer::parse("rust", &["("]).unwrap();
+        let buffer = parse("rust", &["("]);
         assert_eq!(buffer.unmatched_opening_before("(", ")", 0, 0), None);
         assert_eq!(
             buffer.unmatched_opening_before("(", ")", 0, 1),
             Some(Match::delimiter('(', 0, None).with_line(0))
         );
 
-        let mut buffer = ParsedBuffer::parse("rust", &["( ( )"]).unwrap();
+        let buffer = parse("rust", &["( ( )"]);
         assert_eq!(
             buffer.unmatched_opening_before("(", ")", 0, 4),
             Some(Match::delimiter('(', 0, None).with_line(0))
@@ -401,7 +425,7 @@ mod tests {
 
     #[test]
     fn test_get_unmatched_closing_at() {
-        let mut buffer = ParsedBuffer::parse("rust", &[")"]).unwrap();
+        let buffer = parse("rust", &[")"]);
         assert_eq!(
             buffer.unmatched_closing_after("(", ")", 0, 0),
             Some(Match::delimiter(')', 0, None).with_line(0))
@@ -409,7 +433,7 @@ mod tests {
         assert_eq!(buffer.unmatched_closing_after("(", ")", 0, 1), None);
         assert_eq!(buffer.unmatched_closing_after("(", ")", 1, 1), None);
 
-        let mut buffer = ParsedBuffer::parse("rust", &[" )"]).unwrap();
+        let buffer = parse("rust", &[" )"]);
         assert_eq!(
             buffer.unmatched_closing_after("(", ")", 0, 0),
             Some(Match::delimiter(')', 1, None).with_line(0))
@@ -421,7 +445,7 @@ mod tests {
         assert_eq!(buffer.unmatched_closing_after("(", ")", 0, 2), None);
         assert_eq!(buffer.unmatched_closing_after("(", ")", 1, 0), None);
 
-        let mut buffer = ParsedBuffer::parse("rust", &["( ] )"]).unwrap();
+        let buffer = parse("rust", &["( ] )"]);
         assert_eq!(buffer.unmatched_closing_after("[", "]", 0, 0), None);
         assert_eq!(
             buffer.unmatched_closing_after("[", "]", 0, 1),

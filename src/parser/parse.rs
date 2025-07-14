@@ -1,5 +1,7 @@
 use itertools::Itertools;
 
+use crate::parser::indent::indent_levels;
+
 use super::{
     matcher::{Match, Matcher},
     tokenize::tokenize,
@@ -19,10 +21,11 @@ pub enum State {
 /// Given a matcher, runs the tokenizer on the lines and keeps track
 /// of the state and matches for each line
 pub fn parse<M: Matcher>(
+    tab_width: u8,
     lines: &[&str],
     initial_state: State,
     mut matcher: M,
-) -> (Vec<Vec<Match>>, Vec<State>) {
+) -> (Vec<Vec<Match>>, Vec<State>, Vec<u8>) {
     // State
     let mut matches_by_line = Vec::with_capacity(lines.len());
     let mut line_matches = vec![];
@@ -90,7 +93,11 @@ pub fn parse<M: Matcher>(
         matches_by_line[line_number][match_index].stack_height = None;
     }
 
-    (matches_by_line, state_by_line)
+    (
+        matches_by_line,
+        state_by_line,
+        indent_levels(&text, tab_width),
+    )
 }
 
 // TODO: come up with a better way to do testing
@@ -101,6 +108,7 @@ mod tests {
     fn parse(filetype: &str, lines: &str) -> Vec<Vec<Match>> {
         parse_filetype(
             filetype,
+            4,
             &lines.split('\n').collect::<Vec<_>>(),
             State::Normal,
         )

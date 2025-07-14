@@ -1,5 +1,13 @@
 local utils = {}
 
+function utils.get_tab_width(bufnr)
+  local shiftwidth = vim.api.nvim_get_option_value('shiftwidth', { buf = bufnr })
+  -- todo: is this correct?
+  if shiftwidth == 0 then shiftwidth = vim.api.nvim_get_option_value('tabstop', { buf = bufnr }) end
+  -- default to 2 if shiftwidth and tabwidth are 0
+  return math.max(shiftwidth, 2)
+end
+
 --- Finds the maximum overlap between two strings (a and b)
 --- from the end of "a" and beginning of "b"
 --- @param a string

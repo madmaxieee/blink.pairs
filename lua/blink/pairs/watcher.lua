@@ -1,3 +1,5 @@
+local utils = require('blink.pairs.utils')
+
 local watcher = {
   --- @type table<number, boolean>
   watched_bufnrs = {},
@@ -9,14 +11,23 @@ local watcher = {
 --- @param start_line? number
 --- @param old_end_line? number
 --- @param new_end_line? number
---- @return boolean Whether the buffer is parseable
+--- @return boolean did_parse
 local function parse_buffer(bufnr, start_line, old_end_line, new_end_line)
   local start_time = vim.uv.hrtime()
 
   local lines = vim.api.nvim_buf_get_lines(bufnr, start_line or 0, new_end_line or -1, false)
 
   local rust = require('blink.pairs.rust')
-  local ok, ret = pcall(rust.parse_buffer, bufnr, vim.bo[bufnr].filetype, lines, start_line, old_end_line, new_end_line)
+  local ok, ret = pcall(
+    rust.parse_buffer,
+    bufnr,
+    utils.get_tab_width(bufnr),
+    vim.bo[bufnr].filetype,
+    lines,
+    start_line,
+    old_end_line,
+    new_end_line
+  )
   local did_parse = ok and ret
 
   if did_parse and require('blink.pairs.config').debug then

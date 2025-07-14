@@ -17,13 +17,14 @@ package.cpath = package.cpath
   .. get_lib_extension()
 
 --- @class blink.pairs.Parser
---- @field parse_buffer fun(bufnr: number?, filetype: string, lines: string[], start_line: number?, old_end_line: number?, new_end_line: number?): boolean
+--- @field parse_buffer fun(bufnr: number?, shiftwidth: number, filetype: string, lines: string[], start_line: number?, old_end_line: number?, new_end_line: number?): boolean
 --- @field get_line_matches fun(bufnr: number, line_number: number, token_type: number?): blink.pairs.Match[]
 --- @field get_span_at fun(bufnr: number, row: number, col: number): string?
 --- @field get_match_at fun(bufnr: number, row: number, col: number): blink.pairs.Match?
 --- @field get_match_pair fun(bufnr: number, row: number, col: number): blink.pairs.MatchWithLine[]?
 --- @field get_unmatched_opening_before fun(bufnr: number, opening: string, closing: string, row: number, col: number): blink.pairs.MatchWithLine?
 --- @field get_unmatched_closing_after fun(bufnr: number, opening: string, closing: string, row: number, col: number): blink.pairs.MatchWithLine?
+--- @field get_indent_levels fun(bufnr: number, start_line: number, end_line: number): number[]
 
 --- @class blink.pairs.Match
 --- @field [1] string

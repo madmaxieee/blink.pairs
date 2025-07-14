@@ -16,6 +16,7 @@ local config = {
 local M = {}
 
 --- @param cfg blink.pairs.ConfigStrict
+--- @diagnostic disable-next-line: inject-field
 function M.validate(cfg)
   validate('config', {
     mappings = { cfg.mappings, 'table' },
@@ -28,6 +29,7 @@ function M.validate(cfg)
 end
 
 --- @param user_config blink.pairs.Config
+--- @diagnostic disable-next-line: inject-field
 function M.merge_with(user_config)
   config = vim.tbl_deep_extend('force', config, user_config)
   M.validate(config)
