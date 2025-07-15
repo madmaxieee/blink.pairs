@@ -12,15 +12,11 @@ fn criterion_benches(c: &mut Criterion) {
     let rust_lines = rust_text.lines().collect::<Box<[_]>>();
 
     c.bench_function("indent - c", |b| {
-        b.iter(|| {
-            indent_levels(c_text, 4);
-        })
+        b.iter(|| indent_levels::<64>(black_box(c_text), 4))
     });
 
     c.bench_function("indent - rust", |b| {
-        b.iter(|| {
-            indent_levels(rust_text, 4);
-        })
+        b.iter(|| indent_levels::<64>(black_box(rust_text), 4))
     });
 
     c.bench_function("tokenize simd - c", |b| {
