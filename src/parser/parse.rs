@@ -45,6 +45,13 @@ pub fn parse<M: Matcher>(
     #[cfg(not(any(target_feature = "avx2", target_feature = "avx512f")))]
     let mut tokens = tokenize::<16>(&text, matcher.tokens());
 
+    #[cfg(target_feature = "avx512f")]
+    let indents = indent_levels::<64>(&text, tab_width);
+    #[cfg(all(target_feature = "avx2", not(target_feature = "avx512f")))]
+    let indents = indent_levels::<32>(&text, tab_width);
+    #[cfg(not(any(target_feature = "avx2", target_feature = "avx512f")))]
+    let mut indents = indent_levels::<16>(&text, tab_width);
+
     let mut tokens = tokens.multipeek();
 
     while let Some(token) = tokens.next() {
@@ -93,11 +100,7 @@ pub fn parse<M: Matcher>(
         matches_by_line[line_number][match_index].stack_height = None;
     }
 
-    (
-        matches_by_line,
-        state_by_line,
-        indent_levels(&text, tab_width),
-    )
+    (matches_by_line, state_by_line, indents)
 }
 
 // TODO: come up with a better way to do testing
