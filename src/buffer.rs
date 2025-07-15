@@ -1,21 +1,14 @@
 use crate::parser::{parse_filetype, Kind, Match, MatchWithLine, State, Token};
 
 pub struct ParsedBuffer {
-    matches_by_line: Vec<Vec<Match>>,
-    state_by_line: Vec<State>,
-    indent_levels: Vec<u8>,
+    pub matches_by_line: Vec<Vec<Match>>,
+    pub state_by_line: Vec<State>,
+    pub indent_levels: Vec<u8>,
 }
 
 impl ParsedBuffer {
     pub fn parse(filetype: &str, tab_width: u8, lines: &[&str]) -> Option<Self> {
-        let (matches_by_line, state_by_line, indent_levels) =
-            parse_filetype(filetype, tab_width, lines, State::Normal)?;
-
-        Some(Self {
-            matches_by_line,
-            state_by_line,
-            indent_levels,
-        })
+        parse_filetype(filetype, tab_width, lines, State::Normal)
     }
 
     pub fn reparse_range(
@@ -40,21 +33,21 @@ impl ParsedBuffer {
             State::Normal
         };
 
-        if let Some((matches_by_line, state_by_line, indent_levels)) =
-            parse_filetype(filetype, tab_width, lines, initial_state)
-        {
-            let new_end_line = new_end_line.unwrap_or(start_line + matches_by_line.len());
+        if let Some(new) = parse_filetype(filetype, tab_width, lines, initial_state) {
+            let new_end_line = new_end_line.unwrap_or(start_line + new.matches_by_line.len());
             let length = new_end_line - start_line;
+
             self.matches_by_line.splice(
                 start_line..old_end_line,
-                matches_by_line[0..length].to_vec(),
+                new.matches_by_line[0..length].to_vec(),
             );
-            self.state_by_line
-                .splice(start_line..old_end_line, state_by_line[0..length].to_vec());
-
+            self.state_by_line.splice(
+                start_line..old_end_line,
+                new.state_by_line[0..length].to_vec(),
+            );
             self.indent_levels.splice(
                 start_line..old_end_line.min(self.indent_levels.len()),
-                indent_levels[0..length].to_vec(),
+                new.indent_levels[0..length].to_vec(),
             );
 
             self.recalculate_stack_heights();

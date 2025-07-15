@@ -11,20 +11,18 @@ pub use matcher::{Kind, Match, MatchWithLine, Matcher, Token};
 pub use parse::{parse, State};
 pub use tokenize::{tokenize, CharPos};
 
+use crate::buffer::ParsedBuffer;
+
+#[rustfmt::skip]
 pub fn parse_filetype(
     filetype: &str,
     tab_width: u8,
     lines: &[&str],
     initial_state: State,
-) -> Option<(Vec<Vec<Match>>, Vec<State>, Vec<u8>)> {
+) -> Option<ParsedBuffer> {
     match filetype {
         "c" => Some(parse(tab_width, lines, initial_state, languages::C {})),
-        "clojure" => Some(parse(
-            tab_width,
-            lines,
-            initial_state,
-            languages::Clojure {},
-        )),
+        "clojure" => Some(parse(tab_width, lines, initial_state, languages::Clojure {})),
         "cpp" => Some(parse(tab_width, lines, initial_state, languages::Cpp {})),
         "csharp" => Some(parse(tab_width, lines, initial_state, languages::CSharp {})),
         "dart" => Some(parse(tab_width, lines, initial_state, languages::Dart {})),
@@ -32,33 +30,17 @@ pub fn parse_filetype(
         "erlang" => Some(parse(tab_width, lines, initial_state, languages::Erlang {})),
         "fsharp" => Some(parse(tab_width, lines, initial_state, languages::FSharp {})),
         "go" => Some(parse(tab_width, lines, initial_state, languages::Go {})),
-        "haskell" => Some(parse(
-            tab_width,
-            lines,
-            initial_state,
-            languages::Haskell {},
-        )),
+        "haskell" => Some(parse(tab_width, lines, initial_state, languages::Haskell {})),
         "haxe" => Some(parse(tab_width, lines, initial_state, languages::Haxe {})),
         "java" => Some(parse(tab_width, lines, initial_state, languages::Java {})),
-        "typescript" | "javascript" | "typescriptreact" | "javascriptreact" => Some(parse(
-            tab_width,
-            lines,
-            initial_state,
-            languages::JavaScript {},
-        )),
+        "typescript" | "javascript" | "typescriptreact" | "javascriptreact" =>
+            Some(parse(tab_width, lines, initial_state, languages::JavaScript {})),
         "json" => Some(parse(tab_width, lines, initial_state, languages::Json {})),
         "kotlin" => Some(parse(tab_width, lines, initial_state, languages::Kotlin {})),
-        "latex" | "tex" | "bib" => {
-            Some(parse(tab_width, lines, initial_state, languages::Latex {}))
-        }
+        "latex" | "tex" | "bib" => Some(parse(tab_width, lines, initial_state, languages::Latex {})),
         "lean" => Some(parse(tab_width, lines, initial_state, languages::Lean {})),
         "lua" => Some(parse(tab_width, lines, initial_state, languages::Lua {})),
-        "markdown" => Some(parse(
-            tab_width,
-            lines,
-            initial_state,
-            languages::Markdown {},
-        )),
+        "markdown" => Some(parse(tab_width, lines, initial_state, languages::Markdown {})),
         "nix" => Some(parse(tab_width, lines, initial_state, languages::Nix {})),
         "objc" => Some(parse(tab_width, lines, initial_state, languages::ObjC {})),
         "ocaml" => Some(parse(tab_width, lines, initial_state, languages::OCaml {})),

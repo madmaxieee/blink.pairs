@@ -1,11 +1,8 @@
 use itertools::Itertools;
 
-use crate::parser::indent::indent_levels;
+use crate::{buffer::ParsedBuffer, parser::indent::indent_levels};
 
-use super::{
-    matcher::{Match, Matcher},
-    tokenize::tokenize,
-};
+use super::{matcher::Matcher, tokenize::tokenize};
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum State {
@@ -25,7 +22,7 @@ pub fn parse<M: Matcher>(
     lines: &[&str],
     initial_state: State,
     mut matcher: M,
-) -> (Vec<Vec<Match>>, Vec<State>, Vec<u8>) {
+) -> ParsedBuffer {
     // State
     let mut matches_by_line = Vec::with_capacity(lines.len());
     let mut line_matches = vec![];
@@ -46,7 +43,7 @@ pub fn parse<M: Matcher>(
     const N: usize = 16;
 
     let tokens = tokenize::<N>(&text, matcher.tokens());
-    let indents = indent_levels::<N>(&text, tab_width);
+    let indent_levels = indent_levels::<N>(&text, tab_width);
 
     let mut tokens = tokens.multipeek();
 
@@ -96,7 +93,11 @@ pub fn parse<M: Matcher>(
         matches_by_line[line_number][match_index].stack_height = None;
     }
 
-    (matches_by_line, state_by_line, indents)
+    ParsedBuffer {
+        matches_by_line,
+        state_by_line,
+        indent_levels,
+    }
 }
 
 // TODO: come up with a better way to do testing
@@ -112,7 +113,7 @@ mod tests {
             State::Normal,
         )
         .unwrap()
-        .0
+        .matches_by_line
     }
 
     #[test]
