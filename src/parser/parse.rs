@@ -39,18 +39,14 @@ pub fn parse<M: Matcher>(
     let text = lines.join("\n");
 
     #[cfg(target_feature = "avx512f")]
-    let tokens = tokenize::<64>(&text, matcher.tokens());
+    const N: usize = 64;
     #[cfg(all(target_feature = "avx2", not(target_feature = "avx512f")))]
-    let tokens = tokenize::<32>(&text, matcher.tokens());
+    const N: usize = 32;
     #[cfg(not(any(target_feature = "avx2", target_feature = "avx512f")))]
-    let mut tokens = tokenize::<16>(&text, matcher.tokens());
+    const N: usize = 16;
 
-    #[cfg(target_feature = "avx512f")]
-    let indents = indent_levels::<64>(&text, tab_width);
-    #[cfg(all(target_feature = "avx2", not(target_feature = "avx512f")))]
-    let indents = indent_levels::<32>(&text, tab_width);
-    #[cfg(not(any(target_feature = "avx2", target_feature = "avx512f")))]
-    let mut indents = indent_levels::<16>(&text, tab_width);
+    let tokens = tokenize::<N>(&text, matcher.tokens());
+    let indents = indent_levels::<N>(&text, tab_width);
 
     let mut tokens = tokens.multipeek();
 
