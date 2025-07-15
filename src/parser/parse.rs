@@ -43,7 +43,7 @@ pub fn parse<M: Matcher>(
     const N: usize = 16;
 
     let tokens = tokenize::<N>(&text, matcher.tokens());
-    let indent_levels = indent_levels::<N>(&text, tab_width);
+    let indent_levels = indent_levels(lines, tab_width);
 
     let mut tokens = tokens.multipeek();
 
