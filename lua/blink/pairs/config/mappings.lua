@@ -25,20 +25,12 @@ local mappings = {
           enter = false,
           space = false,
           when = function(ctx)
-            if ctx.ft == 'plaintex' then
-              -- The `plaintex` filetype has no treesitter parser, so we can't disable this pair in math environments. Thus, disable this pair completely.
-              return false
-            end
-
-            if
-              ctx.ts:is_language({ 'bibtex', 'comment', 'luadoc', 'latex', 'markdown', 'markdown_inline', 'typst' })
-              and ctx.char_under_cursor:match('%w')
-            then
-              return false
-            end
-
+            -- The `plaintex` filetype has no treesitter parser, so we can't disable
+            -- this pair in math environments. Thus, disable this pair completely.
             -- TODO: disable inside "" strings?
-            return ctx.ts:blacklist('singlequote').matches
+            return ctx.ft ~= 'plaintext'
+              and not ctx.char_under_cursor:match('%w')
+              and ctx.ts:blacklist('singlequote').matches
           end,
         },
       },
@@ -72,10 +64,7 @@ local mappings = {
       ['_'] = {
         {
           '_',
-          when = function(ctx)
-            if ctx.char_under_cursor:match('%w') then return false end
-            return ctx.ts:blacklist('underscore').matches
-          end,
+          when = function(ctx) return not ctx.char_under_cursor:match('%w') and ctx.ts:blacklist('underscore').matches end,
           languages = { 'typst' },
         },
       },
