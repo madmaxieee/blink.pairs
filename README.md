@@ -49,7 +49,7 @@ The behavior was inspired by [lexima.vim](https://github.com/cohama/lexima.vim) 
       -- or disable with `vim.g.pairs = false` (global) and `vim.b.pairs = false` (per-buffer)
       -- and/or with `vim.g.blink_pairs = false` and `vim.b.blink_pairs = false`
       disabled_filetypes = {},
-      -- see the defaults: https://github.com/Saghen/blink.pairs/blob/main/lua/blink/pairs/config/mappings.lua#L12
+      -- see the defaults: https://github.com/Saghen/blink.pairs/blob/main/lua/blink/pairs/config/mappings.lua#L14
       pairs = {},
     },
     highlights = {
