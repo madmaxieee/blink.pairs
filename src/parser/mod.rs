@@ -52,6 +52,7 @@ pub fn parse_filetype(
         "rust" => Some(parse(tab_width, lines, initial_state, languages::Rust {})),
         "scala" => Some(parse(tab_width, lines, initial_state, languages::Scala {})),
         "shell" => Some(parse(tab_width, lines, initial_state, languages::Shell {})),
+        "sql" => Some(parse(tab_width, lines, initial_state, languages::Sql {})),
         "swift" => Some(parse(tab_width, lines, initial_state, languages::Swift {})),
         "toml" => Some(parse(tab_width, lines, initial_state, languages::Toml {})),
         "typst" => Some(parse(tab_width, lines, initial_state, languages::Typst {})),
