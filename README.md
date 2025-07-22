@@ -71,9 +71,9 @@ The behavior was inspired by [lexima.vim](https://github.com/cohama/lexima.vim) 
       -- highlights matching pairs under the cursor
       matchparen = {
         enabled = true,
-        group = 'MatchParen',
         -- known issue where typing won't update matchparen highlight, disabled by default
         cmdline = false,
+        group = 'BlinkPairsMatchParen',
       },
     },
     debug = false,

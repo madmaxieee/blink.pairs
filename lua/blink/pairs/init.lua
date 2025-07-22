@@ -12,6 +12,8 @@ local function set_highlights()
   set_hl('Purple', '#b16286', 13)
   set_hl('Blue', '#458588', 12)
   set_hl('Unmatched', '#ff007c', 9)
+
+  vim.api.nvim_set_hl(0, 'BlinkPairsMatchParen', { link = 'MatchParen', default = true })
 end
 
 --- @param user_config blink.pairs.Config
