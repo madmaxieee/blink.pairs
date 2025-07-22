@@ -49,6 +49,7 @@ The behavior was inspired by [lexima.vim](https://github.com/cohama/lexima.vim) 
       -- and require("blink.pairs.mappings").disable()
       -- to enable/disable mappings at runtime
       enabled = true,
+      cmdline = true,
       -- or disable with `vim.g.pairs = false` (global) and `vim.b.pairs = false` (per-buffer)
       -- and/or with `vim.g.blink_pairs = false` and `vim.b.blink_pairs = false`
       disabled_filetypes = {},
@@ -58,15 +59,21 @@ The behavior was inspired by [lexima.vim](https://github.com/cohama/lexima.vim) 
     },
     highlights = {
       enabled = true,
+      -- requires require('vim._extui').enable({}), otherwise has no effect
+      cmdline = true,
       groups = {
         'BlinkPairsOrange',
         'BlinkPairsPurple',
         'BlinkPairsBlue',
       },
       unmatched_group = 'BlinkPairsUnmatched',
+
+      -- highlights matching pairs under the cursor
       matchparen = {
         enabled = true,
         group = 'MatchParen',
+        -- known issue where typing won't update matchparen highlight, disabled by default
+        cmdline = false,
       },
     },
     debug = false,
