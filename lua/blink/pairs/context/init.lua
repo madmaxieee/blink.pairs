@@ -7,6 +7,7 @@
 --- @field parser blink.pairs.Parser
 --- @field char_under_cursor string character under the cursor
 --- @field prev_non_ws_col integer column of the last non-whitespace character before the cursor
+--- @field is_escaped boolean
 --- @field ts blink.pairs.context.Treesitter
 local Context = {}
 
@@ -19,6 +20,16 @@ Context.__field_constructors = {
       if not ctx.line:sub(i, i):match('%s') then return i end
     end
     return 0
+  end,
+  is_escaped = function(ctx)
+    local line = ctx.line
+    local col = ctx.cursor.col
+    local count = 0
+    while col > 0 and line:sub(col, col) == '\\' do
+      count = count + 1
+      col = col - 1
+    end
+    return count % 2 == 1
   end,
 }
 

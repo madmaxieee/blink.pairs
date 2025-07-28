@@ -119,7 +119,7 @@ function mappings.open_pair(ctx, key, rule, offset)
   if not rule.open(ctx) then return key end
 
   -- \| -> \(|
-  if mappings.is_escaped() then return key end
+  if ctx.is_escaped then return key end
 
   -- |) -> (|)
   if
@@ -163,16 +163,13 @@ function mappings.open_or_close_pair(ctx, key, rule)
   if not rule.open_or_close(ctx) then return key end
 
   -- \| -> \"|
-  if mappings.is_escaped() then return key end
+  if ctx.is_escaped then return key end
 
   local pair = rule.opening
   assert(pair == rule.closing, 'Opening and closing must be the same')
 
   -- |' -> '|
   if ctx:is_after_cursor(pair) then return mappings.shift_keycode(#pair) end
-
-  -- \| -> \'|
-  if mappings.is_escaped() then return key end
 
   -- Multiple character open
   -- '|' -> '''|'''
@@ -238,19 +235,6 @@ function mappings.space(rules)
     -- "(|)" -> "( | )"
     return '<Space><Space>' .. mappings.shift_keycode(-1)
   end
-end
-
-function mappings.is_escaped()
-  local ctx = require('blink.pairs.context').new()
-  local line = ctx.line
-  local col = ctx.cursor.col
-  local count = 0
-  while col > 0 and line:sub(col, col) == '\\' do
-    count = count + 1
-    col = col - 1
-  end
-
-  return count % 2 == 1
 end
 
 return mappings
