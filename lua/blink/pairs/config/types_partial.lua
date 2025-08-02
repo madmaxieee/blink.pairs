@@ -3,10 +3,6 @@
 --- @field highlights? blink.pairs.HighlightsConfigPartial
 --- @field debug? boolean
 
---- @class (exact) blink.pairs.MappingsConfigPartial : blink.pairs.MappingsConfig
---- @field enabled? boolean
---- @field disabled_filetypes? string[]
---- @field pairs? blink.pairs.RuleDefinitions
 
 --- @alias blink.pairs.RuleDefinitions table<string, string | blink.pairs.RuleDefinition | blink.pairs.RuleDefinition[]>
 
@@ -23,6 +19,7 @@
 --- @field enter? boolean | fun(ctx: blink.pairs.Context): boolean
 --- @field backspace? boolean | fun(ctx: blink.pairs.Context): boolean
 --- @field space? boolean | fun(ctx: blink.pairs.Context): boolean
+--- @class (exact) blink.pairs.MappingsConfigPartial : blink.pairs.MappingsConfig, {}
 
 --- @class (exact) blink.pairs.HighlightsConfigPartial : blink.pairs.HighlightsConfig, {}
 --- @field matchparen? blink.pairs.MatchparenConfigPartial
