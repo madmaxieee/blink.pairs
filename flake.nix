@@ -53,6 +53,7 @@
               fileset = rustFs;
             };
             cargoLock = { lockFile = ./Cargo.lock; };
+            doCheck = false;
           };
 
           blink-pairs = pkgs.vimUtils.buildVimPlugin {
